@@ -1,4 +1,6 @@
+import io
 import os
+
 from codeinterpreterapi import CodeInterpreterSession
 import nextcord
 from nextcord.ext import commands
@@ -8,24 +10,43 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 class OPENAI(commands.Cog):
+    session = None
+
     def __init__(self, bot):
         self.bot = bot
 
+    @nextcord.slash_command(name="startgptsession", description="Starts a GPT Code Interpreter Session")
+    async def startgptsession(self, interaction: nextcord.Interaction):
+        # await interaction.response.send_message("Starting Session")
+        self.session = CodeInterpreterSession()
+        await self.session.astart()
+        await interaction.edit_original_message(content="Session Started")
+
+    @nextcord.slash_command(name="stopgptsession", description="Stops a GPT Code Interpreter Session")
+    async def stopgptsession(self, interaction: nextcord.Interaction):
+        # await interaction.response.send_message("Stopping Session")
+        await self.session.astop()
+        await interaction.edit_original_message(content="Session Stopped")
+
     @nextcord.slash_command(name="gpt4ci", description="Ask OpenAI a question")
     async def gpt4ci(self, interaction: nextcord.Interaction, *, message: str):
-        session = CodeInterpreterSession()
-        await session.astart()
-        output = await session.generate_response(message)
+        await interaction.response.send_message(f"Generating response... to {message}")
+        await interaction.edit_original_message(content="Session Started. Generating Response")
 
-        if output.files[0].content:
-            await interaction.response.send_message(file=nextcord.File(output.files[0].content, filename="image.png"))
+        if self.session is None:
+            await self.startgptsession(interaction)
+
+        output = await self.session.generate_response(message)
+
+        await interaction.edit_original_message(content="Response Generated. Processing Output.")
+
+        if len(output.files) > 0:
+            await interaction.edit_original_message(content="Sending file")
+            f = io.BytesIO(output.files[0].content)
+            await interaction.edit_original_message(file=nextcord.File(f, filename="image.png"))
+            await interaction.edit_original_message(content=f"File Sent: {message} | {output.content}")
         else:
-            await interaction.response.send_message(output.text)
-
-        if output.content:
-            await interaction.resp.send_message(output.content)
-
-        await session.astop()
+            await interaction.edit_original_message(content=f"{message} | {output.content}")
 
 
 def setup(bot):
