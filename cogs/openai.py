@@ -2,8 +2,8 @@ import io
 import os
 
 from codeinterpreterapi import CodeInterpreterSession
-import nextcord
-from nextcord.ext import commands
+import discord
+from discord.ext import commands
 import openai
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -15,38 +15,39 @@ class OPENAI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @nextcord.slash_command(name="startgptsession", description="Starts a GPT Code Interpreter Session")
-    async def startgptsession(self, interaction: nextcord.Interaction):
+    @discord.slash_command(name="startgptsession", description="Starts a GPT Code Interpreter Session")
+    async def startgptsession(self, interaction: discord.Interaction):
         # await interaction.response.send_message("Starting Session")
         self.session = CodeInterpreterSession()
         await self.session.astart()
-        await interaction.edit_original_message(content="Session Started")
+        await interaction.followup.send("Session Started")
 
-    @nextcord.slash_command(name="stopgptsession", description="Stops a GPT Code Interpreter Session")
-    async def stopgptsession(self, interaction: nextcord.Interaction):
+    @discord.slash_command(name="stopgptsession", description="Stops a GPT Code Interpreter Session")
+    async def stopgptsession(self, interaction: discord.Interaction):
         # await interaction.response.send_message("Stopping Session")
         await self.session.astop()
-        await interaction.edit_original_message(content="Session Stopped")
+        await interaction.followup.send("Session Stopped")
 
-    @nextcord.slash_command(name="gpt4ci", description="Ask OpenAI a question")
-    async def gpt4ci(self, interaction: nextcord.Interaction, *, message: str):
+    @discord.slash_command(name="gpt4ci", description="Ask OpenAI a question")
+    async def gpt4ci(self, interaction: discord.Interaction, *, message: str):
         await interaction.response.send_message(f"Generating response... to {message}")
-        await interaction.edit_original_message(content="Session Started. Generating Response")
+        #await interaction.response.edit_message(view=self, content="Session Started. Generating Response")
+        await interaction.followup.send(f"Session Started. Generating Response")
 
         if self.session is None:
             await self.startgptsession(interaction)
 
         output = await self.session.generate_response(message)
 
-        await interaction.edit_original_message(content="Response Generated. Processing Output.")
+        await interaction.followup.send("Response Generated. Processing Output.")
 
         if len(output.files) > 0:
-            await interaction.edit_original_message(content="Sending file")
+            await interaction.followup.send("Sending file")
             f = io.BytesIO(output.files[0].content)
-            await interaction.edit_original_message(file=nextcord.File(f, filename="image.png"))
-            await interaction.edit_original_message(content=f"File Sent: {message} | {output.content}")
+            await interaction.response.edit_message(view=self, file=discord.File(f, filename="image.png"))
+            await interaction.followup.send(f"File Sent: {message} | {output.content}")
         else:
-            await interaction.edit_original_message(content=f"{message} | {output.content}")
+            await interaction.followup.send(f"{message} | {output.content}")
 
 
 def setup(bot):
