@@ -1,5 +1,3 @@
-import discord
-from discord.ext import commands
 from dotenv import load_dotenv
 import asyncio
 import os
@@ -9,6 +7,96 @@ from cogs import settings
 from cogs.logging import get_logger
 from dotenv import load_dotenv
 from cogs.queuehandler import GlobalQueue
+import discord
+from discord.ext import commands
+# SQLite Database Initialization
+import sqlite3
+
+conn = sqlite3.connect('chat_history.db')
+cursor = conn.cursor()
+
+create_table_query = """
+CREATE TABLE IF NOT EXISTS chat_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    message TEXT NOT NULL,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+"""
+
+cursor.execute(create_table_query)
+conn.commit()
+
+intents = discord.Intents().all()
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+bot.logger = get_logger(__name__)
+
+
+class MockInteraction:
+    def __init__(self, message):
+        self.message = message
+        self.channel_id = message.channel.id
+        self.user_id = message.author.id
+        self.response = self.Response(message)
+        self.followup = self.Followup(message)
+
+    class Response:
+        def __init__(self, message):
+            self.message = message
+
+        async def send_message(self, content):
+            await self.message.channel.send(content)
+
+    class Followup:
+        def __init__(self, message):
+            self.message = message
+
+        async def send(self, content=None, *, file=None):
+            if file:
+                # If a file is provided, send the file using the original channel object
+                await self.message.channel.send(file=file)
+            else:
+                await self.message.channel.send(content)
+
+
+
+def fetch_context(channel_id, user_id, limit=20):
+    cursor.execute(
+        "SELECT message FROM chat_history WHERE channel_id = ? AND user_id = ? ORDER BY timestamp DESC LIMIT ?",
+        (channel_id, user_id, limit)
+    )
+    return cursor.fetchall()
+
+
+@bot.event
+async def on_message(message):
+    # If the bot is mentioned and the message isn't from the bot itself
+    if bot.user in message.mentions and message.author != bot.user:
+        # Store message in the database
+        cursor.execute(
+            "INSERT INTO chat_history (channel_id, user_id, message) VALUES (?, ?, ?)",
+            (str(message.channel.id), str(message.author.id), message.content)
+        )
+        conn.commit()
+        print(message.content)
+
+        ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
+        # Simulating the /ssa command behavior
+        interaction = MockInteraction(message)
+        await ssa_instance.process_ssa_message(interaction,
+           message=message.content.replace(f'<@!{bot.user.id}>', '').strip())
+    else:
+        if message.channel.type == discord.ChannelType.private and message.author != bot.user:
+            print(f"going a different route with {message.content}")
+            ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
+            # Simulating the /ssa command behavior
+            interaction = MockInteraction(message)
+            await ssa_instance.process_ssa_message(interaction,
+               message=message.content.replace(f'<@!{bot.user.id}>', '').strip())
+
+    await bot.process_commands(message)  # Ensure other commands are still processed
+
 
 load_dotenv()
 GUILD_ID = os.getenv("GUILD_ID")
@@ -16,10 +104,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")  # Discord bot token
 CHANNEL_ID = os.getenv("CHANNEL_ID")  # Channel ID where SSA will log to.
 VOICE_CHANNEL_ID = os.getenv("VOICE_CHANNEL_ID")
 MOTD = "Second Shift Augie! Reporting for Duty!"
-
-intents = discord.Intents().all()
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-bot.logger = get_logger(__name__)
 
 
 @bot.event
@@ -50,6 +134,7 @@ async def stats(ctx):
                           color=settings.global_var.embed_color)
     await ctx.respond(embed=embed)
 
+
 # queue slash command
 @bot.slash_command(name='queue', description='Check the size of each queue')
 async def queue(ctx):
@@ -58,6 +143,7 @@ async def queue(ctx):
     embed = discord.Embed(title='Queue Sizes', description=description,
                           color=settings.global_var.embed_color)
     await ctx.respond(embed=embed)
+
 
 # context menu commands
 @bot.message_command(name="Get Image Info")
@@ -108,7 +194,6 @@ async def on_guild_join(guild):
 
 async def shutdown(bot):
     await bot.close()
-
 
 
 if __name__ == '__main__':

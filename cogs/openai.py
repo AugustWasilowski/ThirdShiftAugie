@@ -31,21 +31,21 @@ class OPENAI(commands.Cog):
     @discord.slash_command(name="gpt4ci", description="Ask OpenAI a question")
     async def gpt4ci(self, interaction: discord.Interaction, *, message: str):
         await interaction.response.send_message(f"Generating response... to {message}")
-        #await interaction.response.edit_message(view=self, content="Session Started. Generating Response")
-        await interaction.followup.send(f"Session Started. Generating Response")
+        # await interaction.response.edit_message(view=self, content="Session Started. Generating Response")
+        # await interaction.followup.send(f"Session Started. Generating Response")
 
         if self.session is None:
             await self.startgptsession(interaction)
 
         output = await self.session.generate_response(message)
 
-        await interaction.followup.send("Response Generated. Processing Output.")
+        # await interaction.followup.send("Response Generated. Processing Output.")
 
         if len(output.files) > 0:
             await interaction.followup.send("Sending file")
             f = io.BytesIO(output.files[0].content)
-            await interaction.response.edit_message(view=self, file=discord.File(f, filename="image.png"))
-            await interaction.followup.send(f"File Sent: {message} | {output.content}")
+            await interaction.followup.send(view=self, file=discord.File(f, filename="image.png"))
+            # await interaction.followup.send(f"File Sent: {message} | {output.content}")
         else:
             await interaction.followup.send(f"{message} | {output.content}")
 
