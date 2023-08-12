@@ -5,7 +5,6 @@ import requests
 import time
 import traceback
 from asyncio import AbstractEventLoop
-from discord import slash_command, Interaction
 from discord import option
 from discord.ext import commands
 from os.path import splitext, basename

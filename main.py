@@ -1,3 +1,4 @@
+
 from dotenv import load_dotenv
 import asyncio
 import os
@@ -5,30 +6,16 @@ import sys
 from cogs import ctxmenuhandler
 from cogs import settings
 from cogs.logging import get_logger
-from dotenv import load_dotenv
 from cogs.queuehandler import GlobalQueue
 import discord
 from discord.ext import commands
-# SQLite Database Initialization
-import sqlite3
 
-conn = sqlite3.connect('chat_history.db')
-cursor = conn.cursor()
+from cogs.DatabaseCog import DatabaseCog
+db_cog = DatabaseCog()
 
-create_table_query = """
-CREATE TABLE IF NOT EXISTS chat_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    channel_id TEXT NOT NULL,
-    user_id TEXT NOT NULL,
-    message TEXT NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-"""
+# Create the database table if it doesn't already exist
+db_cog.create_table()
 
-cursor.execute(create_table_query)
-conn.commit()
-
-intents = discord.Intents().all()
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.logger = get_logger(__name__)
 
@@ -60,40 +47,27 @@ class MockInteraction:
                 await self.message.channel.send(content)
 
 
-
-def fetch_context(channel_id, user_id, limit=20):
-    cursor.execute(
-        "SELECT message FROM chat_history WHERE channel_id = ? AND user_id = ? ORDER BY timestamp DESC LIMIT ?",
-        (channel_id, user_id, limit)
-    )
-    return cursor.fetchall()
-
-
 @bot.event
 async def on_message(message):
     # If the bot is mentioned and the message isn't from the bot itself
     if bot.user in message.mentions and message.author != bot.user:
         # Store message in the database
-        cursor.execute(
-            "INSERT INTO chat_history (channel_id, user_id, message) VALUES (?, ?, ?)",
-            (str(message.channel.id), str(message.author.id), message.content)
-        )
-        conn.commit()
+        db_cog.insert_chat_history(message.channel.id, message.author.id, message.content)
         print(message.content)
 
         ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
         # Simulating the /ssa command behavior
         interaction = MockInteraction(message)
         await ssa_instance.process_ssa_message(interaction,
-           message=message.content.replace(f'<@!{bot.user.id}>', '').strip())
+           message=message.content.replace(f'<@!{bot.user.id}>', '').strip(), personality='Second Shift Augie')
     else:
         if message.channel.type == discord.ChannelType.private and message.author != bot.user:
-            print(f"going a different route with {message.content}")
+            print(f"Via DM: {message.content}")
             ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
             # Simulating the /ssa command behavior
             interaction = MockInteraction(message)
             await ssa_instance.process_ssa_message(interaction,
-               message=message.content.replace(f'<@!{bot.user.id}>', '').strip())
+               message=message.content.replace(f'<@!{bot.user.id}>', '').strip(), personality='Second Shift Augie')
 
     await bot.process_commands(message)  # Ensure other commands are still processed
 

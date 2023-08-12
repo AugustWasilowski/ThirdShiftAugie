@@ -446,3 +446,4 @@ class InfoCog(commands.Cog):
 
 def setup(bot):
     bot.add_cog(InfoCog(bot))
+    print("Loaded Info Cog")

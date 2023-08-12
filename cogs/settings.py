@@ -10,7 +10,6 @@ from typing import Optional
 
 from cogs import queuehandler
 
-self = discord.Bot()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 path = 'resources/'.format(dir_path)
 template = {}
@@ -91,7 +90,7 @@ class GlobalVar:
     dir = ""
     wait_message = []
     wait_message_count = 0
-    embed_color = discord.Colour.from_rgb(222, 89, 28)
+    # embed_color = discord.Color.from_rgb(222, 89, 28)
     gradio_auth = None
     username: Optional[str] = None
     password: Optional[str] = None
