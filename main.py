@@ -171,18 +171,18 @@ async def shutdown(bot):
 
 
 if __name__ == '__main__':
-    settings.startup_check()
-    settings.files_check()
+    # settings.startup_check()
+    # settings.files_check()
 
     bot.load_extension('cogs.flags')
     bot.load_extension('cogs.CogLoader')
     bot.load_extension('cogs.ssa')
     bot.load_extension('cogs.openai')
-    bot.load_extension('cogs.stablecog')
-    bot.load_extension('cogs.settingscog')
-    bot.load_extension('cogs.upscalecog')
-    bot.load_extension('cogs.identifycog')
-    bot.load_extension('cogs.infocog')
+    #bot.load_extension('cogs.stablecog')
+    #bot.load_extension('cogs.settingscog')
+    #bot.load_extension('cogs.upscalecog')
+    #bot.load_extension('cogs.identifycog')
+    #bot.load_extension('cogs.infocog')
     # bot.load_extension('cogs.generatecog')
     bot.load_extension('cogs.elevenlabs')
 

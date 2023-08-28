@@ -393,7 +393,7 @@ def startup_check():
     print(f'Using outputs directory: {global_var.dir}')
 
     # check if Web UI is running
-    connected = False
+    connected = False # Set to True to skip this
     while not connected:
         try:
             response = requests.get(global_var.url + '/sdapi/v1/cmd-flags')
@@ -412,7 +412,7 @@ def startup_check():
             return requests.head(global_var.url)
         except(Exception,):
             print(f'Waiting for Web UI at {global_var.url}...')
-            time.sleep(20)
+            time.sleep(5)
 
 
 def files_check():
