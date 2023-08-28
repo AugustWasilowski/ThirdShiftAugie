@@ -2,7 +2,7 @@ openai~=0.27.8
 codeinterpreterapi==0.0.11
 python-dotenv~=1.0.0
 fake_useragent
-chromadb
+chromadb==0.4.6
 tiktoken
 requests~=2.31.0
 Pillow~=10.0.0
@@ -11,4 +11,6 @@ urlextract~=1.8.0
 transformers~=4.31.0
 torch
 discord==2.3.2
-langchain==0.0.262
+langchain==0.0.268
+discord.py[voice]
+PyNaCl

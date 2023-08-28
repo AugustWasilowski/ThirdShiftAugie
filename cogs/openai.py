@@ -1,7 +1,6 @@
 import io
 import os
 
-from codeinterpreterapi import CodeInterpreterSession
 import discord
 from discord.ext import commands
 import openai
@@ -14,19 +13,6 @@ class OPENAI(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-
-    @discord.slash_command(name="startgptsession", description="Starts a GPT Code Interpreter Session")
-    async def startgptsession(self, interaction: discord.Interaction):
-        # await interaction.response.send_message("Starting Session")
-        self.session = CodeInterpreterSession()
-        await self.session.astart()
-        await interaction.followup.send("Session Started")
-
-    @discord.slash_command(name="stopgptsession", description="Stops a GPT Code Interpreter Session")
-    async def stopgptsession(self, interaction: discord.Interaction):
-        # await interaction.response.send_message("Stopping Session")
-        await self.session.astop()
-        await interaction.followup.send("Session Stopped")
 
     @discord.slash_command(name="gpt4ci", description="Ask OpenAI a question")
     async def gpt4ci(self, interaction: discord.Interaction, *, message: str):

@@ -52,7 +52,7 @@ async def on_message(message):
     # If the bot is mentioned and the message isn't from the bot itself
     if bot.user in message.mentions and message.author != bot.user:
         # Store message in the database
-        db_cog.insert_chat_history(message.channel.id, message.author.id, message.content)
+        # db_cog.insert_chat_history(message.channel.id, message.author.id, message.content)
         print(message.content)
 
         ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
@@ -174,6 +174,7 @@ if __name__ == '__main__':
     settings.startup_check()
     settings.files_check()
 
+    bot.load_extension('cogs.flags')
     bot.load_extension('cogs.CogLoader')
     bot.load_extension('cogs.ssa')
     bot.load_extension('cogs.openai')
@@ -182,7 +183,8 @@ if __name__ == '__main__':
     bot.load_extension('cogs.upscalecog')
     bot.load_extension('cogs.identifycog')
     bot.load_extension('cogs.infocog')
-    bot.load_extension('cogs.generatecog')
+    # bot.load_extension('cogs.generatecog')
+    bot.load_extension('cogs.elevenlabs')
 
     try:
         bot.run(os.getenv("BOT_TOKEN"))

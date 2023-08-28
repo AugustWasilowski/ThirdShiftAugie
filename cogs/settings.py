@@ -119,6 +119,8 @@ class GlobalVar:
     prompt_ignore_list = []
     display_ignored_words = "False"
     negative_prompt_prefix = []
+    prefix = '!'
+    embed_color = 0x0000FF
 
 
 global_var = GlobalVar()

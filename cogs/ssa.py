@@ -9,8 +9,8 @@ import json
 from cogs.DatabaseCog import DatabaseCog
 from langchain.document_loaders import WebBaseLoader
 from langchain.indexes import VectorstoreIndexCreator
-from langchain.llms import OpenAI
-from langchain.utilities import SQLDatabase
+
+from cogs.flags import Flags
 
 # SQLite Database Initialization
 db_cog = DatabaseCog()
@@ -60,7 +60,7 @@ class SSA(commands.Cog):
 
         db_cog.insert_chat_history(str(interaction.channel_id), userid, message)
 
-        recent_messages = db_cog.fetch_recent_messages(str(interaction.channel_id), 10)
+        recent_messages = db_cog.fetch_recent_messages(str(interaction.channel_id), 30)
         messages = [{"role": "system", "content": json.dumps(db_cog.get_template(personality))}]
         messages.extend([{"role": "user", "content": msg} for msg in recent_messages])
         messages.append({"role": "user", "content": json.dumps(message)})
@@ -85,17 +85,31 @@ class SSA(commands.Cog):
 
 
         content = response.choices[0].message.content
-
         if content:
             print(content)
-            # Store AI's response in the database
-            db_cog.insert_chat_history(str(interaction.channel_id), personality, content)
             if len(content) > 2000:
                 # Create a temporary file in memory
                 with io.BytesIO(content.encode()) as f:
                     # Send the content as a file
                     await interaction.followup.send(file=discord.File(f, filename="response.txt"))
             else:
+                elevenlabs_cog = self.bot.get_cog("ELEVENLABS")
+                if elevenlabs_cog:  # Check if the ELEVENLABS cog is loaded
+                    flags = Flags(self.bot)
+                    voice_id = flags.get_flag("voice")
+                    channel_id = interaction.channel_id
+                    try:
+                        user_id = interaction.user_id
+                    except AttributeError:
+                        user_id = interaction.user.id
+
+                    try:
+                        voice_channel_id = interaction.message.author.voice.channel.id
+                        mp3_path = await elevenlabs_cog.text_to_mp3(content, voice_id, channel_id, user_id, voice_channel_id)
+                        print(mp3_path)
+                    except AttributeError:
+                        print("Author has no voice channel")
+                        voice_channel_id = None
                 await interaction.followup.send(f"{content}")
         else:
             await interaction.followup.send(f"I couldn't find an appropriate response for {message}.")
@@ -113,10 +127,10 @@ class SSA(commands.Cog):
             "JamesGPT",
             "ELO-GPT",
             "Product Manager",
-            "SVG designer",
             "Ascii Artist",
             "Rapper",
-            "Pet Behaviorist"
+            "Pet Behaviorist",
+            "AI Developer"
         ]
     )
     async def ssa(self, interaction: discord.Interaction, *, message: str, personality: str = "Second Shift Augie"):
@@ -138,6 +152,27 @@ class SSA(commands.Cog):
     async def webquery(self, interaction: discord.Interaction, query: str, url: str):
         await interaction.response.defer()
         await self.process_webquery_message(interaction, query, url)
+
+    @discord.slash_command(name="joinvoice", description="Join A Voice Channel")
+    async def joinvoice(self, interaction: discord.Interaction):
+        member = interaction.user  # Get the member who invoked the command
+
+        if member.voice and member.voice.channel:
+            channel = member.voice.channel
+            await channel.connect()
+            await interaction.response.send_message(f"Joined {channel.name}!")
+            input_text = f"Second Shift Augie, reporting for duty!"
+            flags = Flags(self.bot)
+            voice_id = flags.get_flag("voice")
+            channel_id = interaction.channel_id
+            user_id = interaction.user.id
+            voice_channel_id = interaction.guild.get_member(user_id).voice.channel.id
+
+            await self.bot.get_cog("ELEVENLABS").text_to_mp3(input_text, voice_id, channel_id, user_id,
+                                                             voice_channel_id)
+        else:
+            await interaction.response.send_message("You are not connected to a voice channel!")
+
 
 def setup(bot):
     bot.add_cog(SSA(bot))
