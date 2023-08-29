@@ -88,6 +88,37 @@ async def on_ready():
     await channel.send(MOTD)
 
 
+# @bot.slash_command(name='ping', description='Get the bots latency')
+# async def ping(interaction: discord.Interaction):
+    #     print('Executing ping command...')
+    # try:
+    #         await interaction.send('Pong! {0}ms'.format(round(bot.latency * 1000, 1)))
+    # except Exception as e:
+    #         print('An error occurred while executing the ping command:')
+#        print(str(e))
+
+
+# stats slash command
+@bot.slash_command(name='stats', description='How many images have I generated?')
+async def stats(ctx):
+    with open('resources/stats.txt', 'r') as f:
+        data = list(map(int, f.readlines()))
+    embed = discord.Embed(title='Art generated', description=f'I have created {data[0]} pictures!',
+                          color=settings.global_var.embed_color)
+    await ctx.respond(embed=embed)
+
+
+# queue slash command
+@bot.slash_command(name='queue', description='Check the size of each queue')
+async def queue(ctx):
+    queue_sizes = GlobalQueue.get_queue_sizes()
+    description = '\n'.join([f'{name}: {size}' for name, size in queue_sizes.items()])
+    embed = discord.Embed(title='Queue Sizes', description=description,
+                          color=settings.global_var.embed_color)
+    await ctx.respond(embed=embed)
+
+
+
 @bot.event
 async def on_ready():
     bot.logger.info(f'Logged in as {bot.user.name} ({bot.user.id})')
