@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import asyncio
 import os
 import sys
-from cogs import ctxmenuhandler
 from cogs import settings
 from cogs.logging import get_logger
 from cogs.queuehandler import GlobalQueue
@@ -119,21 +118,6 @@ async def queue(ctx):
     await ctx.respond(embed=embed)
 
 
-# context menu commands
-@bot.message_command(name="Get Image Info")
-async def get_image_info(ctx, message: discord.Message):
-    await ctxmenuhandler.get_image_info(ctx, message)
-
-
-@bot.message_command(name=f"Quick Upscale")
-async def quick_upscale(ctx, message: discord.Message):
-    await ctxmenuhandler.quick_upscale(bot, ctx, message)
-
-
-@bot.message_command(name=f"Download Batch")
-async def batch_download(ctx, message: discord.Message):
-    await ctxmenuhandler.batch_download(ctx, message)
-
 
 @bot.event
 async def on_ready():
@@ -178,11 +162,11 @@ if __name__ == '__main__':
     bot.load_extension('cogs.CogLoader')
     bot.load_extension('cogs.ssa')
     bot.load_extension('cogs.openai')
-    #bot.load_extension('cogs.stablecog')
-    #bot.load_extension('cogs.settingscog')
-    #bot.load_extension('cogs.upscalecog')
-    #bot.load_extension('cogs.identifycog')
-    #bot.load_extension('cogs.infocog')
+    # bot.load_extension('cogs.stablecog')
+    # bot.load_extension('cogs.settingscog')
+    # bot.load_extension('cogs.upscalecog')
+    # bot.load_extension('cogs.identifycog')
+    # bot.load_extension('cogs.infocog')
     # bot.load_extension('cogs.generatecog')
     bot.load_extension('cogs.elevenlabs')
 
