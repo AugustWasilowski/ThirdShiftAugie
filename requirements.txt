@@ -11,6 +11,6 @@ urlextract~=1.8.0
 transformers~=4.31.0
 torch
 discord==2.3.2
-langchain==0.0.268
+langchain==0.0.242
 discord.py[voice]
 PyNaCl
