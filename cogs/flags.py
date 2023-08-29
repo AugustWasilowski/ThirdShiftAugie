@@ -129,28 +129,28 @@ class Flags(commands.Cog):
         conn.commit()
         conn.close()
 
-    @discord.slash_command(name="flags", description="Second Shift Augie's Flags and Settings")
-    @option(
-        'canspeak',
-        str,
-        description='Can Second Shift Augie speak?',
-        required=True,
-        choices=[
-            "Yes",
-            "No"
-        ]
-    )
+    @discord.slash_command(name="flags", description="Second Shift Augie's Flags and Settings",
+                           option=discord.Option(
+                               name='canspeak',
+                               description='Can Second Shift Augie speak?',
+                               required=True,
+                               choices=[
+                                   "Yes",
+                                   "No"
+                               ]
+                           ))
     async def ssavoice(self, interaction: discord.Interaction, canspeak: str = "No"):
         self.set_flag("CanSpeak", True if canspeak == "Yes" else False)
         await interaction.response.send_message(f"Flag 'CanSpeak' set to {'True' if canspeak == 'Yes' else 'False'}")
 
-    @discord.slash_command(name="setvoice", description="Set the voice")
-    @option(
-        name="voice",
-        description="Choose a voice",
-        required=True,
-        choices=[{'name': str(name), 'value': str(voice_id)} for name, voice_id in voice_mapping.items()]
-    )
+    @discord.slash_command(name="setvoice", description="Set the voice",
+                           option=discord.option(
+                               name="voice",
+                               description="Choose a voice",
+                               required=True,
+                               choices=[{'name': str(name), 'value': str(voice_id)} for name, voice_id in
+                                        voice_mapping.items()]
+                           ))
     async def set_voice(self, interaction: discord.Interaction, voice: str):
         selected_voice_id = voice_mapping[voice]
         self.set_flag("voice", selected_voice_id)
@@ -161,7 +161,8 @@ class Flags(commands.Cog):
         user_id = interaction.user.id
         voice_channel_id = interaction.guild.get_member(user_id).voice.channel.id
 
-        await self.bot.get_cog("ELEVENLABS").text_to_mp3(input_text, selected_voice_id, channel_id, user_id, voice_channel_id)
+        await self.bot.get_cog("ELEVENLABS").text_to_mp3(input_text, selected_voice_id, channel_id, user_id,
+                                                         voice_channel_id)
 
 
 def setup(bot):
