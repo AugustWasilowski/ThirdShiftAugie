@@ -172,6 +172,7 @@ if __name__ == '__main__':
     print("END LOAD COGS")
 
     try:
+        print(f"logging in with {BOT_TOKEN}")
         bot.run(BOT_TOKEN)
     except KeyboardInterrupt:
         bot.logger.info('Keyboard interrupt received. Exiting.')
