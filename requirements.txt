@@ -14,3 +14,4 @@ discord==2.3.2
 langchain==0.0.242
 discord.py[voice]
 PyNaCl
+discord-py-slash-command
