@@ -56,7 +56,7 @@ class MockInteraction:
 @bot.event
 async def on_message(message):
     # If the bot is mentioned and the message isn't from the bot itself
-    ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
+    ssa_instance = bot.get_cog("ssa")  # Get the SSA cog instance
 
     if not ssa_instance:
         print("SSA instance not found")

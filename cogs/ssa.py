@@ -18,7 +18,7 @@ db_cog = DatabaseCog()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-class SSA(commands.Cog):
+class ssa(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -175,5 +175,5 @@ class SSA(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(SSA(bot))
+    bot.add_cog(ssa(bot))
     print("Loaded Second Shift Augie.")
