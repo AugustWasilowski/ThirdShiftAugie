@@ -18,6 +18,13 @@ db_cog.create_table()
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 bot.logger = get_logger(__name__)
 
+load_dotenv()
+GUILD_ID = os.getenv("GUILD_ID")
+BOT_TOKEN = os.getenv("BOT_TOKEN")  # Discord bot token
+CHANNEL_ID = os.getenv("CHANNEL_ID")  # Channel ID where SSA will log to.
+VOICE_CHANNEL_ID = os.getenv("VOICE_CHANNEL_ID")
+MOTD = "Second Shift Augie! Reporting for Duty!"
+print(f"bot token {BOT_TOKEN}")
 
 class MockInteraction:
     def __init__(self, message):
@@ -71,12 +78,6 @@ async def on_message(message):
     await bot.process_commands(message)  # Ensure other commands are still processed
 
 
-load_dotenv()
-GUILD_ID = os.getenv("GUILD_ID")
-BOT_TOKEN = os.getenv("BOT_TOKEN")  # Discord bot token
-CHANNEL_ID = os.getenv("CHANNEL_ID")  # Channel ID where SSA will log to.
-VOICE_CHANNEL_ID = os.getenv("VOICE_CHANNEL_ID")
-MOTD = "Second Shift Augie! Reporting for Duty!"
 
 
 @bot.event
