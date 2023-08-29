@@ -157,7 +157,7 @@ async def shutdown(bot):
 if __name__ == '__main__':
     # settings.startup_check()
     # settings.files_check()
-
+    print("BEGIN LOAD COGS")
     bot.load_extension('cogs.flags')
     bot.load_extension('cogs.CogLoader')
     bot.load_extension('cogs.ssa')
@@ -169,6 +169,7 @@ if __name__ == '__main__':
     # bot.load_extension('cogs.infocog')
     # bot.load_extension('cogs.generatecog')
     bot.load_extension('cogs.elevenlabs')
+    print("END LOAD COGS")
 
     try:
         bot.run(os.getenv("BOT_TOKEN"))
