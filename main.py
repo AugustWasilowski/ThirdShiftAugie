@@ -56,12 +56,17 @@ class MockInteraction:
 @bot.event
 async def on_message(message):
     # If the bot is mentioned and the message isn't from the bot itself
+    ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
+
+    if not ssa_instance:
+        print("SSA instance not found")
+        return
+
     if bot.user in message.mentions and message.author != bot.user:
         # Store message in the database
         # db_cog.insert_chat_history(message.channel.id, message.author.id, message.content)
         print(message.content)
 
-        ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
         # Simulating the /ssa command behavior
         interaction = MockInteraction(message)
         await ssa_instance.process_ssa_message(interaction,
@@ -69,7 +74,7 @@ async def on_message(message):
     else:
         if message.channel.type == discord.ChannelType.private and message.author != bot.user:
             print(f"Via DM: {message.content}")
-            ssa_instance = bot.get_cog("SSA")  # Get the SSA cog instance
+
             # Simulating the /ssa command behavior
             interaction = MockInteraction(message)
             await ssa_instance.process_ssa_message(interaction,
