@@ -127,6 +127,21 @@ async def on_ready():
 
 @bot.event
 async def on_ready():
+    # settings.startup_check()
+    # settings.files_check()
+    print("BEGIN LOAD COGS")
+    bot.load_extension('cogs.flags')
+    bot.load_extension('cogs.CogLoader')
+    bot.load_extension('cogs.ssa')
+    bot.load_extension('cogs.openai')
+    # bot.load_extension('cogs.stablecog')
+    # bot.load_extension('cogs.settingscog')
+    # bot.load_extension('cogs.upscalecog')
+    # bot.load_extension('cogs.identifycog')
+    # bot.load_extension('cogs.infocog')
+    # bot.load_extension('cogs.generatecog')
+    bot.load_extension('cogs.elevenlabs')
+    print("END LOAD COGS")
     bot.logger.info(f'Logged in as {bot.user.name} ({bot.user.id})')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name='user commands'))
     for guild in bot.guilds:
@@ -161,21 +176,6 @@ async def shutdown(bot):
 
 
 if __name__ == '__main__':
-    # settings.startup_check()
-    # settings.files_check()
-    print("BEGIN LOAD COGS")
-    bot.load_extension('cogs.flags')
-    bot.load_extension('cogs.CogLoader')
-    bot.load_extension('cogs.ssa')
-    bot.load_extension('cogs.openai')
-    # bot.load_extension('cogs.stablecog')
-    # bot.load_extension('cogs.settingscog')
-    # bot.load_extension('cogs.upscalecog')
-    # bot.load_extension('cogs.identifycog')
-    # bot.load_extension('cogs.infocog')
-    # bot.load_extension('cogs.generatecog')
-    bot.load_extension('cogs.elevenlabs')
-    print("END LOAD COGS")
 
     try:
         print(f"logging in with {BOT_TOKEN}")
