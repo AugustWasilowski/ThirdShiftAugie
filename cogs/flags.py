@@ -1,7 +1,6 @@
 import os
 import sqlite3
 import discord
-from discord import option
 from discord.ext import commands
 import openai.error
 from cogs.DatabaseCog import DatabaseCog
